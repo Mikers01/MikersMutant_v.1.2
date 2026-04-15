@@ -1,5 +1,6 @@
 package com.mikersmutant.mutant.entity;
 
+import software.bernie.geckolib.core.animation.Animation;
 import com.mikersmutant.mutant.ModEntities;
 import com.mikersmutant.mutant.ModSounds;
 import com.mikersmutant.mutant.config.MutantConfig;
