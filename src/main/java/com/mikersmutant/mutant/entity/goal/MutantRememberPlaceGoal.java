@@ -24,7 +24,7 @@ public class MutantRememberPlaceGoal extends Goal {
         if (!mutant.level().isNight()) return false;
         if (mutant.getTarget() != null) return false;
         
-        UUID worldKey = mutant.level().dimension().location().toString() + "_" + mutant.getUUID();
+        UUID worldKey = UUID.nameUUIDFromBytes((mutant.level().dimension().location().toString() + "_" + mutant.getUUID()).getBytes());
         if (MEMORY.containsKey(worldKey)) {
             rememberedPos = MEMORY.get(worldKey);
             return true;
