@@ -3,7 +3,7 @@ package com.mikersmutant.mutant.entity;
 import com.mikersmutant.mutant.MikersMutantMod;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.resources.ResourceLocation;
-import software.bernie.geckolib3.renderers.geo.GeoEntityRenderer;
+import software.bernie.geckolib.renderer.GeoEntityRenderer;
 
 public class MutantRenderer extends GeoEntityRenderer<MutantEntity> {
     public MutantRenderer(EntityRendererProvider.Context renderManager) {
