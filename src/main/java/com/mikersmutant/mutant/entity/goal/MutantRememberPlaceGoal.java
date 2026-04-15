@@ -3,6 +3,7 @@ package com.mikersmutant.mutant.entity.goal;
 import com.mikersmutant.mutant.entity.MutantEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.ai.goal.Goal;
+import net.minecraft.world.phys.Vec3;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -20,11 +21,10 @@ public class MutantRememberPlaceGoal extends Goal {
     
     @Override
     public boolean canUse() {
-        // Ночью идём на запомненное место
-        if (!mutant.level.isNight()) return false;
+        if (!mutant.level().isNight()) return false;
         if (mutant.getTarget() != null) return false;
         
-        UUID worldKey = mutant.level.dimension().location().toString() + "_" + mutant.getUUID();
+        UUID worldKey = mutant.level().dimension().location().toString() + "_" + mutant.getUUID();
         if (MEMORY.containsKey(worldKey)) {
             rememberedPos = MEMORY.get(worldKey);
             return true;
@@ -34,7 +34,7 @@ public class MutantRememberPlaceGoal extends Goal {
     
     @Override
     public void start() {
-        searchTimer = 1200; // 1 минута
+        searchTimer = 1200;
     }
     
     @Override
