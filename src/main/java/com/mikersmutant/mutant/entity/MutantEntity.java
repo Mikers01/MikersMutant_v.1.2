@@ -150,11 +150,11 @@ public class MutantEntity extends Monster {
             if (level().isDay() && level().canSeeSky(this.blockPosition())) {
                 if (MutantConfig.DATA.sun_damage_enabled) {
                     if (days < 10) {
-                        this.hurt(DamageSource.ON_FIRE, 40.0f);
+                        this.hurt(DamageSource.IN_FIRE, 40.0f);
                     } else if (days < 30) {
-                        this.hurt(DamageSource.ON_FIRE, 4.0f);
+                        this.hurt(DamageSource.IN_FIRE, 4.0f);
                     } else if (days < 60) {
-                        this.hurt(DamageSource.ON_FIRE, 1.0f);
+                        this.hurt(DamageSource.IN_FIRE, 1.0f);
                     }
                 }
             }
