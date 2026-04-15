@@ -29,7 +29,6 @@ import software.bernie.geckolib.animatable.GeoEntity;
 import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.core.animation.AnimatableManager;
 import software.bernie.geckolib.core.animation.AnimationController;
-import software.bernie.geckolib.core.animation.AnimationState;
 import software.bernie.geckolib.core.animation.RawAnimation;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
@@ -254,53 +253,51 @@ public class MutantEntity extends Monster implements GeoEntity {
     
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
-        controllers.add(new AnimationController<>(this, "controller", 5, this::predicate));
+        controllers.add(new AnimationController<>(this, "controller", 5, event -> {
+            if (this.entityData.get(LYING)) {
+                event.getController().setAnimation(RawAnimation.begin().thenLoop("Mutant_Lying"));
+                return AnimationController.State.CONTINUE;
+            }
+            if (this.entityData.get(SLEEPING)) {
+                event.getController().setAnimation(RawAnimation.begin().thenLoop("Mutant_Sleep"));
+                return AnimationController.State.CONTINUE;
+            }
+            if (this.isPanicking()) {
+                event.getController().setAnimation(RawAnimation.begin().thenLoop("Mutant_Panic"));
+                return AnimationController.State.CONTINUE;
+            }
+            if (this.swinging) {
+                event.getController().setAnimation(RawAnimation.begin().then("Mutant_Hit", Animation.LoopType.PLAY_ONCE));
+                return AnimationController.State.CONTINUE;
+            }
+            if (this.attackJumpTimer > 0) {
+                event.getController().setAnimation(RawAnimation.begin().then("Mutant_AttackJump", Animation.LoopType.PLAY_ONCE));
+                return AnimationController.State.CONTINUE;
+            }
+            if (this.eatTimer > 0) {
+                event.getController().setAnimation(RawAnimation.begin().thenLoop("Mutant_Eat"));
+                return AnimationController.State.CONTINUE;
+            }
+            if (this.isSprinting()) {
+                event.getController().setAnimation(RawAnimation.begin().thenLoop("Mutant_Sprinting"));
+                return AnimationController.State.CONTINUE;
+            }
+            if (this.getDeltaMovement().horizontalDistanceSqr() > 0.01) {
+                event.getController().setAnimation(RawAnimation.begin().thenLoop("Mutant_Running"));
+                return AnimationController.State.CONTINUE;
+            }
+            int idleVariant = random.nextInt(6);
+            switch (idleVariant) {
+                case 0: event.getController().setAnimation(RawAnimation.begin().thenLoop("Mutant_Idle")); break;
+                case 1: event.getController().setAnimation(RawAnimation.begin().thenLoop("Mutant_Idle_LookAround")); break;
+                case 2: event.getController().setAnimation(RawAnimation.begin().thenLoop("Mutant_Idle_LookAtSky")); break;
+                case 3: event.getController().setAnimation(RawAnimation.begin().thenLoop("Mutant_Idle_Communicate")); break;
+                case 4: event.getController().setAnimation(RawAnimation.begin().thenLoop("Mutant_Idle_Sit")); break;
+                case 5: event.getController().setAnimation(RawAnimation.begin().thenLoop("Mutant_Idle_Stretch")); break;
+            }
+            return AnimationController.State.CONTINUE;
+        }));
     }
-    
-    private <P extends GeoAnimatable> AnimationController.Predicate<P> predicate = state -> {
-        if (this.entityData.get(LYING)) {
-            state.getController().setAnimation(RawAnimation.begin().thenLoop("Mutant_Lying"));
-            return AnimationController.Predicate.State.CONTINUE;
-        }
-        if (this.entityData.get(SLEEPING)) {
-            state.getController().setAnimation(RawAnimation.begin().thenLoop("Mutant_Sleep"));
-            return AnimationController.Predicate.State.CONTINUE;
-        }
-        if (this.isPanicking()) {
-            state.getController().setAnimation(RawAnimation.begin().thenLoop("Mutant_Panic"));
-            return AnimationController.Predicate.State.CONTINUE;
-        }
-        if (this.swinging) {
-            state.getController().setAnimation(RawAnimation.begin().then("Mutant_Hit", Animation.LoopType.PLAY_ONCE));
-            return AnimationController.Predicate.State.CONTINUE;
-        }
-        if (this.attackJumpTimer > 0) {
-            state.getController().setAnimation(RawAnimation.begin().then("Mutant_AttackJump", Animation.LoopType.PLAY_ONCE));
-            return AnimationController.Predicate.State.CONTINUE;
-        }
-        if (this.eatTimer > 0) {
-            state.getController().setAnimation(RawAnimation.begin().thenLoop("Mutant_Eat"));
-            return AnimationController.Predicate.State.CONTINUE;
-        }
-        if (this.isSprinting()) {
-            state.getController().setAnimation(RawAnimation.begin().thenLoop("Mutant_Sprinting"));
-            return AnimationController.Predicate.State.CONTINUE;
-        }
-        if (this.getDeltaMovement().horizontalDistanceSqr() > 0.01) {
-            state.getController().setAnimation(RawAnimation.begin().thenLoop("Mutant_Running"));
-            return AnimationController.Predicate.State.CONTINUE;
-        }
-        int idleVariant = random.nextInt(6);
-        switch (idleVariant) {
-            case 0: state.getController().setAnimation(RawAnimation.begin().thenLoop("Mutant_Idle")); break;
-            case 1: state.getController().setAnimation(RawAnimation.begin().thenLoop("Mutant_Idle_LookAround")); break;
-            case 2: state.getController().setAnimation(RawAnimation.begin().thenLoop("Mutant_Idle_LookAtSky")); break;
-            case 3: state.getController().setAnimation(RawAnimation.begin().thenLoop("Mutant_Idle_Communicate")); break;
-            case 4: state.getController().setAnimation(RawAnimation.begin().thenLoop("Mutant_Idle_Sit")); break;
-            case 5: state.getController().setAnimation(RawAnimation.begin().thenLoop("Mutant_Idle_Stretch")); break;
-        }
-        return AnimationController.Predicate.State.CONTINUE;
-    };
     
     @Override
     public AnimatableInstanceCache getAnimatableInstanceCache() {
