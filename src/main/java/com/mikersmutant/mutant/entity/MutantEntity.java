@@ -24,25 +24,25 @@ import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
-import software.bernie.geckolib3.core.IAnimatable;
-import software.bernie.geckolib3.core.PlayState;
-import software.bernie.geckolib3.core.builder.AnimationBuilder;
-import software.bernie.geckolib3.core.controller.AnimationController;
-import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
-import software.bernie.geckolib3.core.manager.AnimationData;
-import software.bernie.geckolib3.core.manager.AnimationFactory;
-import software.bernie.geckolib3.util.GeckoLibUtil;
+import software.bernie.geckolib.animatable.GeoEntity;
+import software.bernie.geckolib.core.animatable.GeoAnimatable;
+import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
+import software.bernie.geckolib.core.animation.AnimatableManager;
+import software.bernie.geckolib.core.animation.AnimationController;
+import software.bernie.geckolib.core.animation.AnimationState;
+import software.bernie.geckolib.core.animation.RawAnimation;
+import software.bernie.geckolib.util.GeckoLibUtil;
 
 import javax.annotation.Nullable;
 
-public class MutantEntity extends Monster implements IAnimatable {
+public class MutantEntity extends Monster implements GeoEntity {
     private static final EntityDataAccessor<Boolean> SLEEPING = SynchedEntityData.defineId(MutantEntity.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Boolean> LYING = SynchedEntityData.defineId(MutantEntity.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Integer> LYING_TIMER = SynchedEntityData.defineId(MutantEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> DAYS_ALIVE = SynchedEntityData.defineId(MutantEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Boolean> IS_PANICKING = SynchedEntityData.defineId(MutantEntity.class, EntityDataSerializers.BOOLEAN);
     
-    private AnimationFactory factory = GeckoLibUtil.createFactory(this);
+    private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
     private int panicTimer = 0;
     private int attackJumpTimer = 0;
     private int eatTimer = 0;
@@ -252,59 +252,59 @@ public class MutantEntity extends Monster implements IAnimatable {
         super.die(source);
     }
     
-    private <E extends IAnimatable> PlayState predicate(AnimationEvent<E> event) {
+    @Override
+    public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
+        controllers.add(new AnimationController<>(this, "controller", 5, this::predicate));
+    }
+    
+    private <T extends GeoAnimatable> PlayState predicate(AnimationState<T> state) {
         if (this.entityData.get(LYING)) {
-            event.getController().setAnimation(new AnimationBuilder().addAnimation("Mutant_Lying", true));
+            state.getController().setAnimation(RawAnimation.begin().thenLoop("Mutant_Lying"));
             return PlayState.CONTINUE;
         }
         if (this.entityData.get(SLEEPING)) {
-            event.getController().setAnimation(new AnimationBuilder().addAnimation("Mutant_Sleep", true));
+            state.getController().setAnimation(RawAnimation.begin().thenLoop("Mutant_Sleep"));
             return PlayState.CONTINUE;
         }
         if (this.isPanicking()) {
-            event.getController().setAnimation(new AnimationBuilder().addAnimation("Mutant_Panic", true));
+            state.getController().setAnimation(RawAnimation.begin().thenLoop("Mutant_Panic"));
             return PlayState.CONTINUE;
         }
         if (this.swinging) {
-            event.getController().setAnimation(new AnimationBuilder().addAnimation("Mutant_Hit", false));
+            state.getController().setAnimation(RawAnimation.begin().then("Mutant_Hit", Animation.LoopType.PLAY_ONCE));
             return PlayState.CONTINUE;
         }
         if (this.attackJumpTimer > 0) {
-            event.getController().setAnimation(new AnimationBuilder().addAnimation("Mutant_AttackJump", false));
+            state.getController().setAnimation(RawAnimation.begin().then("Mutant_AttackJump", Animation.LoopType.PLAY_ONCE));
             return PlayState.CONTINUE;
         }
         if (this.eatTimer > 0) {
-            event.getController().setAnimation(new AnimationBuilder().addAnimation("Mutant_Eat", true));
+            state.getController().setAnimation(RawAnimation.begin().thenLoop("Mutant_Eat"));
             return PlayState.CONTINUE;
         }
         if (this.isSprinting()) {
-            event.getController().setAnimation(new AnimationBuilder().addAnimation("Mutant_Sprinting", true));
+            state.getController().setAnimation(RawAnimation.begin().thenLoop("Mutant_Sprinting"));
             return PlayState.CONTINUE;
         }
         if (this.getDeltaMovement().horizontalDistanceSqr() > 0.01) {
-            event.getController().setAnimation(new AnimationBuilder().addAnimation("Mutant_Running", true));
+            state.getController().setAnimation(RawAnimation.begin().thenLoop("Mutant_Running"));
             return PlayState.CONTINUE;
         }
         int idleVariant = random.nextInt(6);
         switch (idleVariant) {
-            case 0: event.getController().setAnimation(new AnimationBuilder().addAnimation("Mutant_Idle", true)); break;
-            case 1: event.getController().setAnimation(new AnimationBuilder().addAnimation("Mutant_Idle_LookAround", true)); break;
-            case 2: event.getController().setAnimation(new AnimationBuilder().addAnimation("Mutant_Idle_LookAtSky", true)); break;
-            case 3: event.getController().setAnimation(new AnimationBuilder().addAnimation("Mutant_Idle_Communicate", true)); break;
-            case 4: event.getController().setAnimation(new AnimationBuilder().addAnimation("Mutant_Idle_Sit", true)); break;
-            case 5: event.getController().setAnimation(new AnimationBuilder().addAnimation("Mutant_Idle_Stretch", true)); break;
+            case 0: state.getController().setAnimation(RawAnimation.begin().thenLoop("Mutant_Idle")); break;
+            case 1: state.getController().setAnimation(RawAnimation.begin().thenLoop("Mutant_Idle_LookAround")); break;
+            case 2: state.getController().setAnimation(RawAnimation.begin().thenLoop("Mutant_Idle_LookAtSky")); break;
+            case 3: state.getController().setAnimation(RawAnimation.begin().thenLoop("Mutant_Idle_Communicate")); break;
+            case 4: state.getController().setAnimation(RawAnimation.begin().thenLoop("Mutant_Idle_Sit")); break;
+            case 5: state.getController().setAnimation(RawAnimation.begin().thenLoop("Mutant_Idle_Stretch")); break;
         }
         return PlayState.CONTINUE;
     }
     
     @Override
-    public void registerControllers(AnimationData data) {
-        data.addAnimationController(new AnimationController<>(this, "controller", 5, this::predicate));
-    }
-    
-    @Override
-    public AnimationFactory getFactory() {
-        return factory;
+    public AnimatableInstanceCache getAnimatableInstanceCache() {
+        return cache;
     }
     
     @Nullable
