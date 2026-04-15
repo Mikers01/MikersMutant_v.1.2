@@ -1,6 +1,14 @@
-plugins {
-    id 'net.minecraftforge.gradle' version '5.1.+'
+buildscript {
+    repositories {
+        maven { url = 'https://maven.minecraftforge.net' }
+        mavenCentral()
+    }
+    dependencies {
+        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '5.1.+', changing: true
+    }
 }
+
+apply plugin: 'net.minecraftforge.gradle'
 
 version = '1.2'
 group = 'com.mikersmutant.mutant'
