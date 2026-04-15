@@ -1,6 +1,5 @@
 package com.mikersmutant.mutant.entity;
 
-import software.bernie.geckolib.core.animation.Animation;
 import com.mikersmutant.mutant.ModEntities;
 import com.mikersmutant.mutant.ModSounds;
 import com.mikersmutant.mutant.config.MutantConfig;
@@ -25,23 +24,16 @@ import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
-import software.bernie.geckolib.animatable.GeoEntity;
-import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
-import software.bernie.geckolib.core.animation.AnimatableManager;
-import software.bernie.geckolib.core.animation.AnimationController;
-import software.bernie.geckolib.core.animation.RawAnimation;
-import software.bernie.geckolib.util.GeckoLibUtil;
 
 import javax.annotation.Nullable;
 
-public class MutantEntity extends Monster implements GeoEntity {
+public class MutantEntity extends Monster {
     private static final EntityDataAccessor<Boolean> SLEEPING = SynchedEntityData.defineId(MutantEntity.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Boolean> LYING = SynchedEntityData.defineId(MutantEntity.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Integer> LYING_TIMER = SynchedEntityData.defineId(MutantEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Integer> DAYS_ALIVE = SynchedEntityData.defineId(MutantEntity.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Boolean> IS_PANICKING = SynchedEntityData.defineId(MutantEntity.class, EntityDataSerializers.BOOLEAN);
     
-    private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
     private int panicTimer = 0;
     private int attackJumpTimer = 0;
     private int eatTimer = 0;
@@ -249,59 +241,6 @@ public class MutantEntity extends Monster implements GeoEntity {
         this.entityData.set(LYING, false);
         this.entityData.set(SLEEPING, false);
         super.die(source);
-    }
-    
-    @Override
-    public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
-        controllers.add(new AnimationController<>(this, "controller", 5, event -> {
-            if (this.entityData.get(LYING)) {
-                event.getController().setAnimation(RawAnimation.begin().thenLoop("Mutant_Lying"));
-                return AnimationController.State.CONTINUE;
-            }
-            if (this.entityData.get(SLEEPING)) {
-                event.getController().setAnimation(RawAnimation.begin().thenLoop("Mutant_Sleep"));
-                return AnimationController.State.CONTINUE;
-            }
-            if (this.isPanicking()) {
-                event.getController().setAnimation(RawAnimation.begin().thenLoop("Mutant_Panic"));
-                return AnimationController.State.CONTINUE;
-            }
-            if (this.swinging) {
-                event.getController().setAnimation(RawAnimation.begin().then("Mutant_Hit", Animation.LoopType.PLAY_ONCE));
-                return AnimationController.State.CONTINUE;
-            }
-            if (this.attackJumpTimer > 0) {
-                event.getController().setAnimation(RawAnimation.begin().then("Mutant_AttackJump", Animation.LoopType.PLAY_ONCE));
-                return AnimationController.State.CONTINUE;
-            }
-            if (this.eatTimer > 0) {
-                event.getController().setAnimation(RawAnimation.begin().thenLoop("Mutant_Eat"));
-                return AnimationController.State.CONTINUE;
-            }
-            if (this.isSprinting()) {
-                event.getController().setAnimation(RawAnimation.begin().thenLoop("Mutant_Sprinting"));
-                return AnimationController.State.CONTINUE;
-            }
-            if (this.getDeltaMovement().horizontalDistanceSqr() > 0.01) {
-                event.getController().setAnimation(RawAnimation.begin().thenLoop("Mutant_Running"));
-                return AnimationController.State.CONTINUE;
-            }
-            int idleVariant = random.nextInt(6);
-            switch (idleVariant) {
-                case 0: event.getController().setAnimation(RawAnimation.begin().thenLoop("Mutant_Idle")); break;
-                case 1: event.getController().setAnimation(RawAnimation.begin().thenLoop("Mutant_Idle_LookAround")); break;
-                case 2: event.getController().setAnimation(RawAnimation.begin().thenLoop("Mutant_Idle_LookAtSky")); break;
-                case 3: event.getController().setAnimation(RawAnimation.begin().thenLoop("Mutant_Idle_Communicate")); break;
-                case 4: event.getController().setAnimation(RawAnimation.begin().thenLoop("Mutant_Idle_Sit")); break;
-                case 5: event.getController().setAnimation(RawAnimation.begin().thenLoop("Mutant_Idle_Stretch")); break;
-            }
-            return AnimationController.State.CONTINUE;
-        }));
-    }
-    
-    @Override
-    public AnimatableInstanceCache getAnimatableInstanceCache() {
-        return cache;
     }
     
     @Nullable
