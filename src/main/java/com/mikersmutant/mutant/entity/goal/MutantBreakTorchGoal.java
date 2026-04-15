@@ -19,8 +19,8 @@ public class MutantBreakTorchGoal extends Goal {
             for (int y = -2; y <= 3; y++) {
                 for (int z = -4; z <= 4; z++) {
                     BlockPos pos = mutant.blockPosition().offset(x, y, z);
-                    if (mutant.level.getBlockState(pos).is(Blocks.TORCH) ||
-                        mutant.level.getBlockState(pos).is(Blocks.WALL_TORCH)) {
+                    if (mutant.level().getBlockState(pos).is(Blocks.TORCH) ||
+                        mutant.level().getBlockState(pos).is(Blocks.WALL_TORCH)) {
                         torchPos = pos;
                         return true;
                     }
@@ -33,7 +33,7 @@ public class MutantBreakTorchGoal extends Goal {
     @Override
     public void start() {
         if (torchPos != null) {
-            mutant.level.destroyBlock(torchPos, false);
+            mutant.level().destroyBlock(torchPos, false);
             torchPos = null;
         }
     }
