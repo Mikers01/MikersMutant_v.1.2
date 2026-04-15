@@ -5,11 +5,8 @@ import com.mikersmutant.mutant.ModSounds;
 import com.mikersmutant.mutant.config.MutantConfig;
 import com.mikersmutant.mutant.entity.goal.*;
 import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.syncher.EntityDataAccessor;
-import net.minecraft.network.syncher.EntityDataSerializers;
-import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
@@ -32,6 +29,9 @@ import software.bernie.geckolib3.core.event.predicate.AnimationEvent;
 import software.bernie.geckolib3.core.manager.AnimationData;
 import software.bernie.geckolib3.core.manager.AnimationFactory;
 import software.bernie.geckolib3.util.GeckoLibUtil;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
 
 import javax.annotation.Nullable;
 
@@ -55,8 +55,6 @@ public class MutantEntity extends Monster implements IAnimatable {
     public static AttributeSupplier.Builder createAttributes() {
         double health = MutantConfig.DATA.mutant_health;
         double speed = MutantConfig.DATA.mutant_speed;
-        // Эволюция: каждый день увеличиваем здоровье и скорость до лимита 100 дней
-        // (это будет обновляться в tick)
         return Monster.createMonsterAttributes()
                 .add(Attributes.MAX_HEALTH, health)
                 .add(Attributes.MOVEMENT_SPEED, speed)
@@ -101,14 +99,12 @@ public class MutantEntity extends Monster implements IAnimatable {
     public void tick() {
         super.tick();
         
-        if (!level.isClientSide) {
-            // Эволюция по дням
-            long worldDay = level.getDayTime() / 24000;
+        if (!level().isClientSide) {
+            long worldDay = level().getDayTime() / 24000;
             int days = (int) Math.min(worldDay, MutantConfig.DATA.max_days);
             this.entityData.set(DAYS_ALIVE, days);
             applyEvolution(days);
             
-            // Логика паники
             if (this.entityData.get(IS_PANICKING)) {
                 panicTimer--;
                 if (panicTimer <= 0) {
@@ -116,7 +112,6 @@ public class MutantEntity extends Monster implements IAnimatable {
                 }
             }
             
-            // Логика лежания (восстановление)
             if (this.entityData.get(LYING)) {
                 int timer = this.entityData.get(LYING_TIMER);
                 if (timer <= 0) {
@@ -129,18 +124,16 @@ public class MutantEntity extends Monster implements IAnimatable {
                 return;
             }
             
-            // Проверка здоровья для перехода в Lying
             if (this.getHealth() < 10 && !this.entityData.get(LYING) && !this.isDeadOrDying()) {
                 this.entityData.set(LYING, true);
-                this.entityData.set(LYING_TIMER, 2000); // 100 секунд
+                this.entityData.set(LYING_TIMER, 2000);
                 this.setNoAi(true);
                 return;
             }
             
-            // Сон днём в пещерах
-            boolean day = level.isDay();
-            boolean dark = level.getMaxLocalRawBrightness(this.blockPosition()) == 0;
-            boolean inCave = this.blockPosition().getY() < 50; // упрощённо
+            boolean day = level().isDay();
+            boolean dark = level().getMaxLocalRawBrightness(this.blockPosition()) == 0;
+            boolean inCave = this.blockPosition().getY() < 50;
             if (day && dark && inCave && this.isDaySleeper && !this.entityData.get(LYING)) {
                 this.entityData.set(SLEEPING, true);
                 this.setNoAi(true);
@@ -151,7 +144,6 @@ public class MutantEntity extends Monster implements IAnimatable {
                 }
             }
             
-            // Атака прыжком
             if (this.attackJumpTimer > 0) {
                 attackJumpTimer--;
                 if (attackJumpTimer == 0 && this.getTarget() != null) {
@@ -164,17 +156,15 @@ public class MutantEntity extends Monster implements IAnimatable {
                 }
             }
             
-            // Урон на солнце
-            if (level.isDay() && level.canSeeSky(this.blockPosition())) {
+            if (level().isDay() && level().canSeeSky(this.blockPosition())) {
                 if (MutantConfig.DATA.sun_damage_enabled) {
                     if (days < 10) {
-                        this.hurt(DamageSource.ON_FIRE, 40.0f); // мгновенная смерть за 2 сек
+                        this.hurt(DamageSource.ON_FIRE, 40.0f);
                     } else if (days < 30) {
                         this.hurt(DamageSource.ON_FIRE, 4.0f);
                     } else if (days < 60) {
                         this.hurt(DamageSource.ON_FIRE, 1.0f);
                     }
-                    // после 60 дней не горят, после 100 иммунитет
                 }
             }
         }
@@ -214,8 +204,7 @@ public class MutantEntity extends Monster implements IAnimatable {
     }
     
     public void startAttackJump() {
-        this.attackJumpTimer = 10; // 0.5 секунды
-        // Анимация прыжка
+        this.attackJumpTimer = 10;
     }
     
     public void startEating(int duration) {
@@ -246,7 +235,6 @@ public class MutantEntity extends Monster implements IAnimatable {
     @Override
     public boolean hurt(DamageSource source, float amount) {
         if (this.entityData.get(LYING)) {
-            // Если лежит и получает урон — умирает
             this.setHealth(0);
             this.die(source);
             return true;
@@ -264,7 +252,6 @@ public class MutantEntity extends Monster implements IAnimatable {
         super.die(source);
     }
     
-    // GeckoLib анимации
     private <E extends IAnimatable> PlayState predicate(AnimationEvent<E> event) {
         if (this.entityData.get(LYING)) {
             event.getController().setAnimation(new AnimationBuilder().addAnimation("Mutant_Lying", true));
@@ -298,7 +285,6 @@ public class MutantEntity extends Monster implements IAnimatable {
             event.getController().setAnimation(new AnimationBuilder().addAnimation("Mutant_Running", true));
             return PlayState.CONTINUE;
         }
-        // Idle вариации — случайный выбор
         int idleVariant = random.nextInt(6);
         switch (idleVariant) {
             case 0: event.getController().setAnimation(new AnimationBuilder().addAnimation("Mutant_Idle", true)); break;
