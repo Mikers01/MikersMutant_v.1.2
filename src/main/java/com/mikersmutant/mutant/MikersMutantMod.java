@@ -32,7 +32,7 @@ public static class ClientModEvents {
     @SubscribeEvent
     public static void onClientSetup(FMLClientSetupEvent event) {
         event.enqueueWork(() -> {
-            EntityRenderers.register(ModEntities.MUTANT.get(), MutantRenderer::new);
+            //EntityRenderers.register(ModEntities.MUTANT.get(), MutantRenderer::new);
         });
     }
 }
