@@ -1,0 +1,15 @@
+{
+  "mutant_ambient": {"sounds": ["mikersmutant:mutant_ambient"]},
+  "mutant_hurt": {"sounds": ["mikersmutant:mutant_hurt"]},
+  "mutant_death": {"sounds": ["mikersmutant:mutant_death"]},
+  "mutant_eat": {"sounds": ["mikersmutant:mutant_eat"]},
+  "mutant_roar": {"sounds": ["mikersmutant:mutant_roar"]},
+  "mutant_panic": {"sounds": ["mikersmutant:mutant_panic"]},
+  "mutant_break": {"sounds": ["mikersmutant:mutant_break"]},
+  "mutant_climb": {"sounds": ["mikersmutant:mutant_climb"]},
+  "mutant_sniff": {"sounds": ["mikersmutant:mutant_sniff"]},
+  "mutant_door_knock": {"sounds": ["mikersmutant:mutant_door_knock"]},
+  "mutant_door_play": {"sounds": ["mikersmutant:mutant_door_play"]},
+  "mutant_scrape": {"sounds": ["mikersmutant:mutant_scrape"]},
+  "mutant_communicate": {"sounds": ["mikersmutant:mutant_communicate"]}
+}
