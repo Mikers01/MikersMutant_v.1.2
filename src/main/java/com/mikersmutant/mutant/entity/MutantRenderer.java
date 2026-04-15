@@ -1,5 +1,6 @@
 package com.mikersmutant.mutant.entity;
 
+import software.bernie.geckolib.renderer.GeoEntityRenderer;
 import com.mikersmutant.mutant.MikersMutantMod;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.resources.ResourceLocation;
