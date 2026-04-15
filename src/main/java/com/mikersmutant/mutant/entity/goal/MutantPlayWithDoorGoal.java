@@ -6,7 +6,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.level.block.DoorBlock;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 
 public class MutantPlayWithDoorGoal extends Goal {
     private final MutantEntity mutant;
@@ -26,7 +25,7 @@ public class MutantPlayWithDoorGoal extends Goal {
             for (int y = -3; y <= 3; y++) {
                 for (int z = -5; z <= 5; z++) {
                     BlockPos pos = mutant.blockPosition().offset(x, y, z);
-                    if (mutant.level.getBlockState(pos).getBlock() instanceof DoorBlock) {
+                    if (mutant.level().getBlockState(pos).getBlock() instanceof DoorBlock) {
                         doorPos = pos;
                         return true;
                     }
@@ -38,7 +37,7 @@ public class MutantPlayWithDoorGoal extends Goal {
     
     @Override
     public void start() {
-        playTimer = 200; // 10 секунд
+        playTimer = 200;
         actionTimer = 0;
         mutant.setNoAi(true);
     }
@@ -48,10 +47,10 @@ public class MutantPlayWithDoorGoal extends Goal {
         if (doorPos == null) return;
         
         if (actionTimer <= 0) {
-            BlockState state = mutant.level.getBlockState(doorPos);
+            BlockState state = mutant.level().getBlockState(doorPos);
             if (state.getBlock() instanceof DoorBlock) {
                 boolean open = !state.getValue(DoorBlock.OPEN);
-                mutant.level.setBlock(doorPos, state.setValue(DoorBlock.OPEN, open), 2);
+                mutant.level().setBlock(doorPos, state.setValue(DoorBlock.OPEN, open), 2);
                 mutant.playSound(ModSounds.MUTANT_DOOR_PLAY.get(), 0.5f, 1.0f);
                 actionTimer = 20;
             }
