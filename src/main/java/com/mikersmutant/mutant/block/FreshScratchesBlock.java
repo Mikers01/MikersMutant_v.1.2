@@ -8,7 +8,7 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 public class FreshScratchesBlock extends Block {
-    private static final VoxelShape SHAPE = box(0, 0, 0, 16, 1, 16);
+    private static final VoxelShape SHAPE = Block.box(0, 0, 0, 16, 1, 16);
 
     public FreshScratchesBlock(Properties properties) {
         super(properties);
