@@ -6,7 +6,6 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
-import net.minecraft.world.level.material.Material;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -19,7 +18,7 @@ public class ModBlocks {
             DeferredRegister.create(ForgeRegistries.ITEMS, MikersMutantMod.MOD_ID);
 
     public static final RegistryObject<Block> FRESH_SCRATCHES = BLOCKS.register("fresh_scratches",
-            () -> new FreshScratchesBlock(BlockBehaviour.Properties.of(Material.DECORATION)
+            () -> new FreshScratchesBlock(BlockBehaviour.Properties.of()
                     .strength(0.5f).sound(SoundType.STONE).noOcclusion()));
 
     public static final RegistryObject<Item> FRESH_SCRATCHES_ITEM = ITEMS.register("fresh_scratches",
