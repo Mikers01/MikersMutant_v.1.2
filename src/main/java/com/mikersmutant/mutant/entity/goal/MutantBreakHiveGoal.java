@@ -20,8 +20,8 @@ public class MutantBreakHiveGoal extends Goal {
             for (int y = -4; y <= 4; y++) {
                 for (int z = -8; z <= 8; z++) {
                     BlockPos pos = mutant.blockPosition().offset(x, y, z);
-                    if (mutant.level.getBlockState(pos).is(Blocks.BEEHIVE) ||
-                        mutant.level.getBlockState(pos).is(Blocks.BEE_NEST)) {
+                    if (mutant.level().getBlockState(pos).is(Blocks.BEEHIVE) || 
+                        mutant.level().getBlockState(pos).is(Blocks.BEE_NEST)) {
                         hivePos = pos;
                         return true;
                     }
@@ -39,7 +39,7 @@ public class MutantBreakHiveGoal extends Goal {
     @Override
     public void tick() {
         if (hivePos != null && breakTimer-- <= 0) {
-            mutant.level.destroyBlock(hivePos, true);
+            mutant.level().destroyBlock(hivePos, true);
             hivePos = null;
         }
     }
