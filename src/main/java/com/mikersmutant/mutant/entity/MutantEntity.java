@@ -25,7 +25,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import software.bernie.geckolib.animatable.GeoEntity;
-import software.bernie.geckolib.core.animatable.GeoAnimatable;
 import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.core.animation.AnimatableManager;
 import software.bernie.geckolib.core.animation.AnimationController;
@@ -257,38 +256,38 @@ public class MutantEntity extends Monster implements GeoEntity {
         controllers.add(new AnimationController<>(this, "controller", 5, this::predicate));
     }
     
-    private <T extends GeoAnimatable> PlayState predicate(AnimationState<T> state) {
+    private <P extends GeoAnimatable> AnimationController.Predicate<P> predicate = state -> {
         if (this.entityData.get(LYING)) {
             state.getController().setAnimation(RawAnimation.begin().thenLoop("Mutant_Lying"));
-            return PlayState.CONTINUE;
+            return AnimationController.Predicate.State.CONTINUE;
         }
         if (this.entityData.get(SLEEPING)) {
             state.getController().setAnimation(RawAnimation.begin().thenLoop("Mutant_Sleep"));
-            return PlayState.CONTINUE;
+            return AnimationController.Predicate.State.CONTINUE;
         }
         if (this.isPanicking()) {
             state.getController().setAnimation(RawAnimation.begin().thenLoop("Mutant_Panic"));
-            return PlayState.CONTINUE;
+            return AnimationController.Predicate.State.CONTINUE;
         }
         if (this.swinging) {
             state.getController().setAnimation(RawAnimation.begin().then("Mutant_Hit", Animation.LoopType.PLAY_ONCE));
-            return PlayState.CONTINUE;
+            return AnimationController.Predicate.State.CONTINUE;
         }
         if (this.attackJumpTimer > 0) {
             state.getController().setAnimation(RawAnimation.begin().then("Mutant_AttackJump", Animation.LoopType.PLAY_ONCE));
-            return PlayState.CONTINUE;
+            return AnimationController.Predicate.State.CONTINUE;
         }
         if (this.eatTimer > 0) {
             state.getController().setAnimation(RawAnimation.begin().thenLoop("Mutant_Eat"));
-            return PlayState.CONTINUE;
+            return AnimationController.Predicate.State.CONTINUE;
         }
         if (this.isSprinting()) {
             state.getController().setAnimation(RawAnimation.begin().thenLoop("Mutant_Sprinting"));
-            return PlayState.CONTINUE;
+            return AnimationController.Predicate.State.CONTINUE;
         }
         if (this.getDeltaMovement().horizontalDistanceSqr() > 0.01) {
             state.getController().setAnimation(RawAnimation.begin().thenLoop("Mutant_Running"));
-            return PlayState.CONTINUE;
+            return AnimationController.Predicate.State.CONTINUE;
         }
         int idleVariant = random.nextInt(6);
         switch (idleVariant) {
@@ -299,8 +298,8 @@ public class MutantEntity extends Monster implements GeoEntity {
             case 4: state.getController().setAnimation(RawAnimation.begin().thenLoop("Mutant_Idle_Sit")); break;
             case 5: state.getController().setAnimation(RawAnimation.begin().thenLoop("Mutant_Idle_Stretch")); break;
         }
-        return PlayState.CONTINUE;
-    }
+        return AnimationController.Predicate.State.CONTINUE;
+    };
     
     @Override
     public AnimatableInstanceCache getAnimatableInstanceCache() {
