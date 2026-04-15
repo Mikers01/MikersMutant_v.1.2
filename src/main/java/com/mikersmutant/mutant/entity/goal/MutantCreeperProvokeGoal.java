@@ -22,7 +22,7 @@ public class MutantCreeperProvokeGoal extends Goal {
             return false;
         }
         
-        for (Entity entity : mutant.level.getEntitiesOfClass(Creeper.class, mutant.getBoundingBox().inflate(10))) {
+        for (Entity entity : mutant.level().getEntitiesOfClass(Creeper.class, mutant.getBoundingBox().inflate(10))) {
             targetCreeper = (Creeper) entity;
             return true;
         }
@@ -31,7 +31,7 @@ public class MutantCreeperProvokeGoal extends Goal {
     
     @Override
     public void start() {
-        provokeTimer = 30; // 1.5 секунды
+        provokeTimer = 30;
         if (targetCreeper != null) {
             targetCreeper.ignite();
         }
@@ -41,7 +41,6 @@ public class MutantCreeperProvokeGoal extends Goal {
     public void tick() {
         provokeTimer--;
         if (provokeTimer <= 0 && targetCreeper != null) {
-            // Отбегаем на 5 блоков
             double dx = mutant.getX() - targetCreeper.getX();
             double dz = mutant.getZ() - targetCreeper.getZ();
             double dist = Math.sqrt(dx * dx + dz * dz);
@@ -50,7 +49,7 @@ public class MutantCreeperProvokeGoal extends Goal {
                 double vz = dz / dist * 5.0;
                 mutant.setDeltaMovement(vx, 0.5, vz);
             }
-            cooldown = 600; // 30 секунд КД
+            cooldown = 600;
             targetCreeper = null;
         }
     }
