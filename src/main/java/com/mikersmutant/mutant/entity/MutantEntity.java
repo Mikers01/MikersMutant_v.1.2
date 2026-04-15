@@ -142,7 +142,7 @@ public class MutantEntity extends Monster {
                     double dz = this.getTarget().getZ() - this.getZ();
                     double dist = Math.sqrt(dx * dx + dz * dz);
                     if (dist <= 5.0) {
-                        this.getTarget().hurt(DamageSource.mobAttack(this), 10.0f);
+                        this.getTarget().hurt(this.damageSources().mobAttack(this), 10.0f);
                     }
                 }
             }
