@@ -25,7 +25,7 @@ public class MutantScrapeBarkGoal extends Goal {
             for (int y = -2; y <= 4; y++) {
                 for (int z = -3; z <= 3; z++) {
                     BlockPos pos = mutant.blockPosition().offset(x, y, z);
-                    Block block = mutant.level.getBlockState(pos).getBlock();
+                    Block block = mutant.level().getBlockState(pos).getBlock();
                     if (block == Blocks.OAK_LOG || block == Blocks.BIRCH_LOG || block == Blocks.SPRUCE_LOG ||
                         block == Blocks.JUNGLE_LOG || block == Blocks.ACACIA_LOG || block == Blocks.DARK_OAK_LOG) {
                         treePos = pos;
@@ -39,18 +39,18 @@ public class MutantScrapeBarkGoal extends Goal {
     
     @Override
     public void start() {
-        scrapeTimer = 60; // 3 секунды
+        scrapeTimer = 60;
         mutant.setNoAi(true);
     }
     
     @Override
     public void tick() {
         if (scrapeTimer-- <= 0 && treePos != null) {
-            Block block = mutant.level.getBlockState(treePos).getBlock();
+            Block block = mutant.level().getBlockState(treePos).getBlock();
             Block strippedBlock = getStripped(block);
             if (strippedBlock != null) {
-                mutant.level.setBlock(treePos, strippedBlock.defaultBlockState()
-                        .setValue(RotatedPillarBlock.AXIS, mutant.level.getBlockState(treePos).getValue(RotatedPillarBlock.AXIS)), 3);
+                mutant.level().setBlock(treePos, strippedBlock.defaultBlockState()
+                        .setValue(RotatedPillarBlock.AXIS, mutant.level().getBlockState(treePos).getValue(RotatedPillarBlock.AXIS)), 3);
                 mutant.playSound(ModSounds.MUTANT_SCRAPE.get(), 1.0f, 1.0f);
                 mutant.heal(2.0f);
             }
