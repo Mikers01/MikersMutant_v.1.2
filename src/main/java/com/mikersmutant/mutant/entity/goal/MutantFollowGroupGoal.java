@@ -17,14 +17,12 @@ public class MutantFollowGroupGoal extends Goal {
     
     @Override
     public boolean canUse() {
-        // Днём спят вместе, ночью разбегаются
-        if (mutant.level.isDay()) return false;
+        if (mutant.level().isDay()) return false;
         if (mutant.getTarget() != null) return false;
         
-        List<MutantEntity> group = mutant.level.getEntitiesOfClass(MutantEntity.class, mutant.getBoundingBox().inflate(30));
+        List<MutantEntity> group = mutant.level().getEntitiesOfClass(MutantEntity.class, mutant.getBoundingBox().inflate(30));
         if (group.size() <= 1) return false;
         
-        // Ищем ближайшего сородича
         double closestDist = 100;
         for (MutantEntity m : group) {
             if (m != mutant) {
@@ -40,7 +38,7 @@ public class MutantFollowGroupGoal extends Goal {
     
     @Override
     public void start() {
-        returnTimer = 1200; // 1 минута
+        returnTimer = 1200;
     }
     
     @Override
