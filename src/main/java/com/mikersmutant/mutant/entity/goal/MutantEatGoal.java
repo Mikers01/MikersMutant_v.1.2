@@ -64,7 +64,7 @@ public class MutantEatGoal extends Goal {
             }
             // ускорение на 20 секунд
             mutant.getAttribute(net.minecraft.world.entity.ai.attributes.Attributes.MOVEMENT_SPEED).setBaseValue(0.45);
-            mutant.getPersistentData().putLong("speedBoostEnd", mutant.level.getGameTime() + 400);
+            mutant.getPersistentData().putLong("speedBoostEnd", mutant.level().getGameTime() + 400);
         }
     }
     
